@@ -40,6 +40,22 @@ namespace Plugin.SegmentedControl.Maui
             set => this.SetValue(ItemProperty, value);
         }
 
+        public static readonly BindableProperty ImageSourceProperty =
+            BindableProperty.Create(
+            nameof(ImageSource),
+            typeof(Microsoft.Maui.Controls.ImageSource),
+            typeof(SegmentedControlOption),
+            default(Microsoft.Maui.Controls.ImageSource));
+
+        /// <summary>
+        /// Optional icon to show instead of (or alongside) the Text.
+        /// </summary>
+        public Microsoft.Maui.Controls.ImageSource ImageSource
+        {
+            get => (Microsoft.Maui.Controls.ImageSource)this.GetValue(ImageSourceProperty);
+            set => this.SetValue(ImageSourceProperty, value);
+        }
+
         private void OnItemPropertyChanged(object oldValue, object newValue)
         {
             if (oldValue is INotifyPropertyChanged mutableItem)

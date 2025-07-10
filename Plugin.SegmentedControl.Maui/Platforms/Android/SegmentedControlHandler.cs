@@ -5,6 +5,7 @@ using Android.Views;
 using Android.Widget;
 using Microsoft.Maui.Handlers;
 using Microsoft.Maui.Platform;
+using Microsoft.Maui.Controls.Compatibility.Platform.Android;
 using Plugin.SegmentedControl.Maui.Extensions;
 using Plugin.SegmentedControl.Maui.Platforms.Extensions;
 using Plugin.SegmentedControl.Maui.Utils;
@@ -50,24 +51,32 @@ namespace Plugin.SegmentedControl.Maui
 
             for (var i = 0; i < segmentedControl.Children.Count; i++)
             {
-                var segmentedControlOption = segmentedControl.Children[i];
-                var isButtonEnabled = segmentedControl.IsEnabled && segmentedControlOption.IsEnabled;
+                var option = segmentedControl.Children[i];
+                var isEnabled = segmentedControl.IsEnabled && option.IsEnabled;
                 var radioButton = (RadioButton)layoutInflater.Inflate(Resource.Layout.RadioButton, null);
 
-                radioButton.LayoutParameters = new RadioGroup.LayoutParams(LayoutParams.MatchParent, LayoutParams.WrapContent, 1f);
-                radioButton.Text = segmentedControlOption.Text;
+                radioButton.LayoutParameters =
+                    new RadioGroup.LayoutParams(LayoutParams.MatchParent, LayoutParams.WrapContent, 1f);
 
-                if (i == 0)
+                if (option is SegmentedControlOption sco && sco.ImageSource != null)
                 {
-                    radioButton.SetBackgroundResource(Resource.Drawable.segmented_control_first_background);
+                    // load & wrap your icon
+                    var loader = new ImageLoaderSourceHandler();
+                    var bmp = loader.LoadImageAsync(sco.ImageSource, this.Context).Result;
+                    var dr = new BitmapDrawable(this.Context.Resources, bmp);
+
+                    radioButton.SetCompoundDrawablesWithIntrinsicBounds(null, dr, null, null);
+                    radioButton.CompoundDrawablePadding = 8;
+                    radioButton.Gravity = GravityFlags.Center;
+                    radioButton.Text = "";            // hide text if desired
                 }
-                else if (i == segmentedControl.Children.Count - 1)
+                else
                 {
-                    radioButton.SetBackgroundResource(Resource.Drawable.segmented_control_last_background);
+                    radioButton.Text = option.Text;
                 }
 
-                this.ConfigureRadioButton(i, isButtonEnabled, radioButton);
-
+                // keep your first/last background & ConfigureRadioButton calls…
+                this.ConfigureRadioButton(i, isEnabled, radioButton);
                 radioGroup.AddView(radioButton);
             }
 
@@ -443,23 +452,30 @@ namespace Plugin.SegmentedControl.Maui
 
                     for (var i = 0; i < segmentedControl.Children.Count; i++)
                     {
-                        var segmentedControlOption = segmentedControl.Children[i];
-                        var isButtonEnabled = segmentedControl.IsEnabled && segmentedControlOption.IsEnabled;
+                        var option = segmentedControl.Children[i];
+                        var isEnabled = segmentedControl.IsEnabled && option.IsEnabled;
                         var radioButton = (RadioButton)layoutInflater.Inflate(Resource.Layout.RadioButton, null);
 
-                        radioButton.LayoutParameters = new RadioGroup.LayoutParams(LayoutParams.MatchParent, LayoutParams.WrapContent, 1f);
-                        radioButton.Text = segmentedControlOption.Text;
+                        radioButton.LayoutParameters =
+                            new RadioGroup.LayoutParams(LayoutParams.MatchParent, LayoutParams.WrapContent, 1f);
 
-                        if (i == 0)
+                        if (option is SegmentedControlOption sco && sco.ImageSource != null)
                         {
-                            radioButton.SetBackgroundResource(Resource.Drawable.segmented_control_first_background);
+                            var loader = new ImageLoaderSourceHandler();
+                            var bmp = loader.LoadImageAsync(sco.ImageSource, handler.Context).Result;
+                            var dr = new BitmapDrawable(handler.Context.Resources, bmp);
+
+                            radioButton.SetCompoundDrawablesWithIntrinsicBounds(null, dr, null, null);
+                            radioButton.CompoundDrawablePadding = 8;
+                            radioButton.Gravity = GravityFlags.Center;
+                            radioButton.Text = "";
                         }
-                        else if (i == segmentedControl.Children.Count - 1)
+                        else
                         {
-                            radioButton.SetBackgroundResource(Resource.Drawable.segmented_control_last_background);
+                            radioButton.Text = option.Text;
                         }
 
-                        handler.ConfigureRadioButton(i, isButtonEnabled, radioButton);
+                        handler.ConfigureRadioButton(i, isEnabled, radioButton);
                         radioGroup.AddView(radioButton);
                     }
 

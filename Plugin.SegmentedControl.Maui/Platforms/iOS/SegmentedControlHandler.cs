@@ -1,4 +1,6 @@
-﻿using Microsoft.Maui.Handlers;
+﻿using Microsoft.Maui.Controls.Compatibility.Platform.iOS;
+using System.Threading;
+using Microsoft.Maui.Handlers;
 using Microsoft.Maui.Platform;
 using Plugin.SegmentedControl.Maui.Extensions;
 using Plugin.SegmentedControl.Maui.Utils;
@@ -35,20 +37,35 @@ namespace Plugin.SegmentedControl.Maui
         {
             var uiSegmentedControl = new UISegmentedControl();
             var segmentedControl = this.VirtualView;
-            UpdateSegmentedControl(uiSegmentedControl, segmentedControl);
+            UpdateSegmentedControl(uiSegmentedControl, segmentedControl, this.MauiContext);
             return uiSegmentedControl;
         }
 
-        private static void UpdateSegmentedControl(UISegmentedControl uiSegmentedControl, SegmentedControl segmentedControl)
+        private static void UpdateSegmentedControl(UISegmentedControl uiSegmentedControl, SegmentedControl segmentedControl, IMauiContext mauiContext)
         {
             uiSegmentedControl.RemoveAllSegments();
 
             for (var i = 0; i < segmentedControl.Children.Count; i++)
             {
-                var segmentedControlOption = segmentedControl.Children[i];
-                uiSegmentedControl.InsertSegment(segmentedControlOption.Text, i, false);
-            }
+                var option = segmentedControl.Children[i];
 
+                if (option is SegmentedControlOption sco && sco.ImageSource != null)
+                {
+                    // fallback to the Compatibility image loader
+                    var loader = new ImageLoaderSourceHandler();
+                    // block on the async load (this happens once per segment at setup time)
+                    var uiImage = loader.LoadImageAsync(sco.ImageSource, CancellationToken.None).Result;
+
+                    uiSegmentedControl.InsertSegment(uiImage, (nint)i, animated: false);
+                }
+                else
+                {
+                    uiSegmentedControl.InsertSegment(
+                        option.Text ?? string.Empty,
+                        (nint)i,
+                        animated: false);
+                }
+            }
             // TODO: Deduplicate assignments
 
             UpdateIsEnabled(uiSegmentedControl, segmentedControl);
@@ -206,7 +223,7 @@ namespace Plugin.SegmentedControl.Maui
         private static void MapChildren(SegmentedControlHandler handler, SegmentedControl segmentedControl)
         {
             var uiSegmentedControl = handler.PlatformView;
-            UpdateSegmentedControl(uiSegmentedControl, segmentedControl);
+            UpdateSegmentedControl(uiSegmentedControl, segmentedControl, handler.MauiContext);
         }
     }
 }
