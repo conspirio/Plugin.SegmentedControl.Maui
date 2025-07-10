@@ -27,6 +27,7 @@ namespace Plugin.SegmentedControl.Maui
                 [nameof(SegmentedControl.FontSize)] = MapFontSize,
                 [nameof(SegmentedControl.FontAttributes)] = MapFontAttributes,
                 [nameof(SegmentedControl.Children)] = MapChildren,
+                [nameof(SegmentedControlOption.ImageSource)] = MapChildren,
             };
 
         public SegmentedControlHandler() : base(Mapper)

@@ -35,6 +35,7 @@ namespace Plugin.SegmentedControl.Maui
                 [nameof(SegmentedControl.FontSize)] = MapFontSize,
                 [nameof(SegmentedControl.FontAttributes)] = MapFontAttributes,
                 [nameof(SegmentedControl.Children)] = MapChildren,
+                [nameof(SegmentedControlOption.ImageSource)] = MapChildren,
             };
 
         public SegmentedControlHandler() : base(Mapper)
@@ -60,22 +61,27 @@ namespace Plugin.SegmentedControl.Maui
 
                 if (option is SegmentedControlOption sco && sco.ImageSource != null)
                 {
-                    // load & wrap your icon
                     var loader = new ImageLoaderSourceHandler();
                     var bmp = loader.LoadImageAsync(sco.ImageSource, this.Context).Result;
-                    var dr = new BitmapDrawable(this.Context.Resources, bmp);
-
-                    radioButton.SetCompoundDrawablesWithIntrinsicBounds(null, dr, null, null);
-                    radioButton.CompoundDrawablePadding = 8;
-                    radioButton.Gravity = GravityFlags.Center;
-                    radioButton.Text = "";            // hide text if desired
+                    if (bmp != null)
+                    {
+                        var dr = new BitmapDrawable(this.Context.Resources, bmp);
+                        radioButton.SetCompoundDrawablesWithIntrinsicBounds(null, dr, null, null);
+                        radioButton.CompoundDrawablePadding = 8;
+                        radioButton.Gravity = GravityFlags.Center;
+                        radioButton.Text = "";
+                    }
+                    else
+                    {
+                        // Fall back if image is null
+                        radioButton.Text = option.Text;
+                    }
                 }
                 else
                 {
                     radioButton.Text = option.Text;
                 }
 
-                // keep your first/last background & ConfigureRadioButton calls…
                 this.ConfigureRadioButton(i, isEnabled, radioButton);
                 radioGroup.AddView(radioButton);
             }
@@ -463,12 +469,18 @@ namespace Plugin.SegmentedControl.Maui
                         {
                             var loader = new ImageLoaderSourceHandler();
                             var bmp = loader.LoadImageAsync(sco.ImageSource, handler.Context).Result;
-                            var dr = new BitmapDrawable(handler.Context.Resources, bmp);
-
-                            radioButton.SetCompoundDrawablesWithIntrinsicBounds(null, dr, null, null);
-                            radioButton.CompoundDrawablePadding = 8;
-                            radioButton.Gravity = GravityFlags.Center;
-                            radioButton.Text = "";
+                            if (bmp != null)
+                            {
+                                var dr = new BitmapDrawable(handler.Context.Resources, bmp);
+                                radioButton.SetCompoundDrawablesWithIntrinsicBounds(null, dr, null, null);
+                                radioButton.CompoundDrawablePadding = 8;
+                                radioButton.Gravity = GravityFlags.Center;
+                                radioButton.Text = "";
+                            }
+                            else
+                            {
+                                radioButton.Text = option.Text;
+                            }
                         }
                         else
                         {

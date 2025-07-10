@@ -4,6 +4,9 @@
 
 This library provides a segmented control for .NET MAUI apps using native platform APIs.
 
+### Note
+This fork requires Microsoft.Maui.Controls.Compatibility to be installed in the Maui project to support images.
+
 ### Download and Install Plugin.SegmentedControl.Maui
 This library is available on NuGet: [Plugin.SegmentedControl.Maui](https://www.nuget.org/packages/Plugin.SegmentedControl.Maui)  
 Use the following command to install `Plugin.SegmentedControl.Maui` using the NuGet package manager console:
