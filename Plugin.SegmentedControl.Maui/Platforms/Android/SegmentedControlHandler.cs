@@ -57,29 +57,64 @@ namespace Plugin.SegmentedControl.Maui
                 var radioButton = (RadioButton)layoutInflater.Inflate(Resource.Layout.RadioButton, null);
 
                 radioButton.LayoutParameters =
-                    new RadioGroup.LayoutParams(LayoutParams.MatchParent, LayoutParams.WrapContent, 1f);
+                    new RadioGroup.LayoutParams(LayoutParams.MatchParent, LayoutParams.MatchParent, 1f);
 
                 if (option is SegmentedControlOption sco && sco.ImageSource != null)
                 {
-                    var loader = new ImageLoaderSourceHandler();
-                    var bmp = loader.LoadImageAsync(sco.ImageSource, this.Context).Result;
-                    if (bmp != null)
+                    if (sco.ImageSource is FileImageSource fis && !string.IsNullOrEmpty(fis.File))
                     {
-                        var dr = new BitmapDrawable(this.Context.Resources, bmp);
-                        radioButton.SetCompoundDrawablesWithIntrinsicBounds(null, dr, null, null);
-                        radioButton.CompoundDrawablePadding = 8;
-                        radioButton.Gravity = GravityFlags.Center;
-                        radioButton.Text = "";
+                        // resource names must be lowercase and underscores only
+                        var name = System.IO.Path.GetFileNameWithoutExtension(fis.File).Replace('-', '_');
+                        var id = this.Context.Resources.GetIdentifier(name, "drawable", this.Context.PackageName);
+
+                        if (id != 0)
+                        {
+                            var dr = this.Context.GetDrawable(id);
+
+                            if (!string.IsNullOrEmpty(option.Text))
+                            {
+                                radioButton.Text = option.Text;
+                                dr.SetBounds(0, 10, 50, 50);
+
+                                radioButton.CompoundDrawablePadding = 10;
+                            }
+                            else
+                            {
+                                radioButton.Text = string.Empty;
+                                dr.SetBounds(0, 10, 100, 100);
+                                radioButton.CompoundDrawablePadding = -70;
+
+                                radioButton.SetIncludeFontPadding(false);
+                                radioButton.SetSingleLine(true);
+                                radioButton.SetMinHeight(0);
+                                radioButton.SetMinWidth(0);
+                                radioButton.SetPadding(0, 0, 0, 0);
+                            }
+
+                            radioButton.SetCompoundDrawables(null, dr, null, null);
+                            radioButton.Gravity = GravityFlags.Center;
+                        }
                     }
                     else
                     {
                         // Fall back if image is null
+                        System.Diagnostics.Debug.WriteLine($"Img file source was null, falling back");
                         radioButton.Text = option.Text;
                     }
                 }
                 else
                 {
+                    System.Diagnostics.Debug.WriteLine($"Img was null, falling back");
                     radioButton.Text = option.Text;
+                }
+
+                if (i == 0)
+                {
+                    radioButton.SetBackgroundResource(Resource.Drawable.segmented_control_first_background);
+                }
+                else if (i == segmentedControl.Children.Count - 1)
+                {
+                    radioButton.SetBackgroundResource(Resource.Drawable.segmented_control_last_background);
                 }
 
                 this.ConfigureRadioButton(i, isEnabled, radioButton);
@@ -463,28 +498,63 @@ namespace Plugin.SegmentedControl.Maui
                         var radioButton = (RadioButton)layoutInflater.Inflate(Resource.Layout.RadioButton, null);
 
                         radioButton.LayoutParameters =
-                            new RadioGroup.LayoutParams(LayoutParams.MatchParent, LayoutParams.WrapContent, 1f);
+                            new RadioGroup.LayoutParams(LayoutParams.MatchParent, LayoutParams.MatchParent, 1f);
 
                         if (option is SegmentedControlOption sco && sco.ImageSource != null)
                         {
-                            var loader = new ImageLoaderSourceHandler();
-                            var bmp = loader.LoadImageAsync(sco.ImageSource, handler.Context).Result;
-                            if (bmp != null)
+                            if (sco.ImageSource is FileImageSource fis && !string.IsNullOrEmpty(fis.File))
                             {
-                                var dr = new BitmapDrawable(handler.Context.Resources, bmp);
-                                radioButton.SetCompoundDrawablesWithIntrinsicBounds(null, dr, null, null);
-                                radioButton.CompoundDrawablePadding = 8;
-                                radioButton.Gravity = GravityFlags.Center;
-                                radioButton.Text = "";
+                                // resource names must be lowercase and underscores only
+                                var name = System.IO.Path.GetFileNameWithoutExtension(fis.File).Replace('-', '_');
+                                var id = handler.Context.Resources.GetIdentifier(name, "drawable", handler.Context.PackageName);
+
+                                if (id != 0)
+                                {
+                                    var dr = handler.Context.GetDrawable(id);
+
+                                    if (!string.IsNullOrEmpty(option.Text))
+                                    {
+                                        radioButton.Text = option.Text;
+                                        dr.SetBounds(0, 10, 50, 50);
+                                        radioButton.CompoundDrawablePadding = 10;
+                                    }
+                                    else
+                                    {
+                                        radioButton.Text = string.Empty;
+                                        dr.SetBounds(0, 10, 100, 100);
+                                        radioButton.CompoundDrawablePadding = -70;
+
+                                        radioButton.SetIncludeFontPadding(false);
+                                        radioButton.SetSingleLine(true);
+                                        radioButton.SetMinHeight(0);
+                                        radioButton.SetMinWidth(0);
+                                        radioButton.SetPadding(0, 0, 0, 0);
+                                    }
+
+                                    radioButton.SetCompoundDrawables(null, dr, null, null);
+                                    radioButton.Gravity = GravityFlags.Center;
+                                }
                             }
                             else
                             {
+                                // Fall back if image is null
+                                System.Diagnostics.Debug.WriteLine($"Img file source was null, falling back");
                                 radioButton.Text = option.Text;
                             }
                         }
                         else
                         {
+                            System.Diagnostics.Debug.WriteLine($"Img was null, falling back");
                             radioButton.Text = option.Text;
+                        }
+
+                        if (i == 0)
+                        {
+                            radioButton.SetBackgroundResource(Resource.Drawable.segmented_control_first_background);
+                        }
+                        else if (i == segmentedControl.Children.Count - 1)
+                        {
+                            radioButton.SetBackgroundResource(Resource.Drawable.segmented_control_last_background);
                         }
 
                         handler.ConfigureRadioButton(i, isEnabled, radioButton);
